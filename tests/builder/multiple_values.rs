@@ -1858,3 +1858,33 @@ fn disallow_positionals_without_values() {
     let cmd = Command::new("test").arg(Arg::new("pos").num_args(0));
     cmd.debug_assert();
 }
+
+#[test]
+fn issue_5040_value_terminator_works_as_first_arg_when_escape() {
+    let res = Command::new("program")
+        .arg(
+            Arg::new("opts")
+                .action(ArgAction::Append)
+                .allow_hyphen_values(true)
+                .value_terminator("--"),
+        )
+        .arg(
+            Arg::new("cmdline")
+                .action(ArgAction::Append)
+                .allow_hyphen_values(true),
+        )
+        .try_get_matches_from(["program", "--", "ls", "-l"]);
+
+    assert!(res.is_ok(), "{}", res.unwrap_err());
+    let m = res.unwrap();
+
+    assert!(m.get_many::<String>("cmdline").is_none());
+    assert!(m.contains_id("opts"));
+    assert_eq!(
+        m.get_many::<String>("opts")
+            .unwrap()
+            .map(|v| v.as_str())
+            .collect::<Vec<_>>(),
+        ["ls", "-l"]
+    );
+}
