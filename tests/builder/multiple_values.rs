@@ -1878,10 +1878,10 @@ fn issue_5040_value_terminator_works_as_first_arg_when_escape() {
     assert!(res.is_ok(), "{}", res.unwrap_err());
     let m = res.unwrap();
 
-    assert!(m.get_many::<String>("cmdline").is_none());
-    assert!(m.contains_id("opts"));
+    assert!(m.get_many::<String>("opts").is_none());
+    assert!(m.contains_id("cmdline"));
     assert_eq!(
-        m.get_many::<String>("opts")
+        m.get_many::<String>("cmdline")
             .unwrap()
             .map(|v| v.as_str())
             .collect::<Vec<_>>(),

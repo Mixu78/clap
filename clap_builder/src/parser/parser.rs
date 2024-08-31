@@ -109,6 +109,18 @@ impl<'cmd> Parser<'cmd> {
                         debug!("Parser::get_matches_with: setting TrailingVals=true");
                         trailing_values = true;
                         matcher.start_trailing();
+
+                        let is_arg_terminator = self
+                            .cmd
+                            .get_keymap()
+                            .get(&pos_counter)
+                            .and_then(Arg::get_value_terminator)
+                            .map(|x| x == arg_os.to_value_os())
+                            .unwrap_or_default();
+                        if is_arg_terminator {
+                            pos_counter += 1;
+                        }
+
                         continue;
                     }
                 } else if let Some((long_arg, long_value)) = arg_os.to_long() {
